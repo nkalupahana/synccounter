@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en" ng-app>
+  <head>
+    <title>SSI Counter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+
+    <style>
+      body {
+        padding-top: 30px;
+      }
+    </style>
+    <script>
+      function ChatController($scope) {
+        var socket = io.connect();
+
+        $scope.data = [];
+        $scope.total = 0;
+
+        socket.on('connect', function () {
+          console.log("connected");
+          //socket.emit('message', '!UPDATE');
+        });
+
+        socket.on('data', function (data) {
+          $scope.data = data;
+          var count = 0;
+          for (item of data) {
+            count += item.count;
+          }
+          
+          $scope.total = count;
+          $scope.$apply();
+        });
+        
+        socket.on('alert', function(msg) {
+          Materialize.toast(msg, 3000);
+        });
+        
+        $scope.addName = function() {
+          socket.emit('message', document.getElementById("nameE").value + "|0");
+          document.getElementById("nameE").value = "";
+        };
+        
+        $scope.increment = function(ele, ud) {
+          console.log(ele);
+          socket.emit('message', ele.parentElement.parentElement.firstElementChild.innerHTML + "|" + ud);
+        };
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container" ng-controller="ChatController" id="mainApp">
+      <div class="row">
+        <table class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Count</th>
+                <th>Increment</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr ng-repeat="datum in data">
+                <td ng-bind="datum.name"></td>
+                <td ng-bind="datum.count"></td>
+                <td>
+                  <a class="waves-effect waves-light btn" onclick="_increment(this, '+')">+</a>
+                  <a class="waves-effect waves-light btn" onclick="_increment(this, '-')">-</a>
+                </td>
+              </tr>
+              <tr>
+                <td><b>Total</b></td>
+                <td ng-bind="total" style="font-weight:bold;"></td>
+              </tr>
+              <tr>
+                <td><div class="input-field"><input type="text" id="nameE"><label for="nameE">New Name</label></div></td>
+                <td><a class="waves-effect waves-light btn" ng-click="addName()">add</a></td>
+              </tr>
+            </tbody>
+          </table>
+      </div>
+    </div>
+    <script>
+      function _increment(ele, ud) {
+        var scope = angular.element(document.getElementById("mainApp")).scope();
+        scope.increment(ele, ud);
+      }
+    </script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+  </body>
+</html>

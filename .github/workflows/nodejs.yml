@@ -22,8 +22,8 @@ jobs:
         npm install
         npm install -g now
     - name: Deploy
-      with: # Set the secret as an input
-        ZEIT: ${{ secrets.ZEIT }}
       run: |
         now --token ${ZEIT}
+      with:
+        ZEIT: ${{ secrets.ZEIT }}
       

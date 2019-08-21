@@ -23,6 +23,8 @@ jobs:
         npm install -g now
     - name: Deploy
       run: |
+        ls
+        cat package.json
         now --token ${ZEIT}
       env:
         ZEIT: ${{ secrets.ZEIT }}

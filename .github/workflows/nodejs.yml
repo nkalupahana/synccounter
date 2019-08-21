@@ -23,5 +23,5 @@ jobs:
         npm install -g now
     - name: Deploy
       run: |
-        now
+        now --token ${ZEIT}
       
